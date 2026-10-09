@@ -29,20 +29,6 @@ jobs:
           cache: true
           cache-key: ${{ steps.flutter-version.outputs.version }}-stable
 
-      # https://github.com/actions/cache
-      - name: Cache dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: |
-            ${{ env.PUB_CACHE }}
-            ${{ github.workspace }}/.packages
-            ${{ github.workspace }}/.flutter-plugins
-            ${{ github.workspace }}/.flutter-plugin-dependencies
-            ${{ github.workspace }}/.dart_tool/package_config.json
-          key: build-pubspec-${{ hashFiles(format('{0}{1}', github.workspace, '/pubspec.lock')) }}
-          restore-keys: |
-            build-pubspec-
-
       - name: Install dependencies
         run: flutter pub get
 
