@@ -123,13 +123,10 @@ class _WeatherActionButtonText extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme.labelLarge;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Text(
-        _text,
-        style: textTheme?.copyWith(color: Colors.blue),
-        textAlign: TextAlign.center,
-      ),
+    return Text(
+      _text,
+      style: textTheme?.copyWith(color: Colors.blue),
+      textAlign: TextAlign.center,
     );
   }
 }
