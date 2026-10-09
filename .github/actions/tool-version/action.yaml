@@ -1,0 +1,34 @@
+name: Tool version
+description: Resolve the version of a tool pinned in mise.toml.
+
+inputs:
+  tool:
+    description: Tool name as written in mise.toml (for example, golangci-lint).
+    required: true
+
+outputs:
+  version:
+    description: The version of the tool requested in mise.toml.
+    value: ${{ steps.resolve.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up mise
+      uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+      with:
+        install: false
+        cache: false
+
+    - id: resolve
+      name: Resolve tool version
+      shell: bash
+      env:
+        TOOL: ${{ inputs.tool }}
+      run: |
+        version="$(mise tool --json "$TOOL" | jq -r '.requested_versions[0] // empty')"
+        if [[ -z "$version" ]]; then
+          echo "::error::No version of '$TOOL' is requested in mise.toml"
+          exit 1
+        fi
+        echo "version=$version" >> "$GITHUB_OUTPUT"

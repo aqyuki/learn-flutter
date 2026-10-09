@@ -1,38 +1,37 @@
-name: check-pr
+name: check
 
 on:
   pull_request:
 
 jobs:
   check:
-    runs-on: ubuntu-22.04
-
+    runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
       # https://github.com/actions/checkout
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      # https://github.com/kuhnroyal/flutter-fvm-config-action
-      - name: Fetch flutter config
-        uses: kuhnroyal/flutter-fvm-config-action@34c3905bc939a4ff9d9cb07d5a977493fa73b2aa
-        id: fvm-config-action
+      - id: flutter-version
+        uses: ./.github/actions/tool-version
+        with:
+          tool: flutter
 
       # https://github.com/subosito/flutter-action
       - name: Setup flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
-          flutter-version: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}
-          channel: ${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
+          flutter-version: ${{ steps.flutter-version.outputs.version }}
+          channel: stable
           cache: true
-          cache-key: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}-${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
+          cache-key: ${{ steps.flutter-version.outputs.version }}-stable
 
       # https://github.com/actions/cache
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ${{ env.PUB_CACHE }}
@@ -47,9 +46,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-        # https://github.com/invertase/github-action-dart-analyzer
+      # https://github.com/invertase/github-action-dart-analyzer
       - name: Report analyze
-        uses: invertase/github-action-dart-analyzer@v1
+        uses: invertase/github-action-dart-analyzer@e981b01a458d0bab71ee5da182e5b26687b7101b # v3
         with:
           fatal-infos: true
 
@@ -59,9 +58,9 @@ jobs:
 
       # https://github.com/dorny/test-reporter
       - name: Report test
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3.0.0
         with:
-          name: 'flutter test'
-          path: 'test_report.log'
-          reporter: 'flutter-json'
-          fail-on-error: 'true'
+          name: "flutter test"
+          path: "test_report.log"
+          reporter: "flutter-json"
+          fail-on-error: "true"
