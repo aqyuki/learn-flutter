@@ -75,13 +75,13 @@ class _TemperatureDisplayText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme.labelLarge;
+    final textStyle = Theme.of(context).textTheme.labelLarge;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Text(
         _text,
-        style: textTheme?.copyWith(color: _color),
+        style: textStyle?.copyWith(color: _color),
         textAlign: TextAlign.center,
       ),
     );
@@ -121,11 +121,11 @@ class _WeatherActionButtonText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme.labelLarge;
+    final textStyle = Theme.of(context).textTheme.labelLarge;
 
     return Text(
       _text,
-      style: textTheme?.copyWith(color: Colors.blue),
+      style: textStyle?.copyWith(color: Colors.blue),
       textAlign: TextAlign.center,
     );
   }
