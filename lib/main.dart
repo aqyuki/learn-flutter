@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_training/data/repository/weather.dart';
 import 'package:flutter_training/feature/weather/repository.dart';
+import 'package:flutter_training/ui/initial/initial_page.dart';
 import 'package:flutter_training/ui/weather/weather_page.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 
@@ -18,7 +19,11 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(body: WeatherPage(repo: _weatherRepository)),
+      home: const InitialPage(),
+      routes: {
+        '/weather': (BuildContext context) =>
+            WeatherPage(repo: _weatherRepository),
+      },
     );
   }
 }
