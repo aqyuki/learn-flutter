@@ -13,14 +13,7 @@ class YumemiWeatherApiClient({required final YumemiWeather _client})
   void fetchWeather() {
     final res = _client.fetchSimpleWeather();
 
-    switch (res) {
-      case 'sunny':
-        _weather = const Weather(WeatherCondition.sunny);
-      case 'cloudy':
-        _weather = const Weather(WeatherCondition.cloudy);
-      case 'rainy':
-        _weather = const Weather(WeatherCondition.rainy);
-    }
+    _weather = Weather(WeatherCondition.fromString(res));
 
     notifyListeners();
   }
