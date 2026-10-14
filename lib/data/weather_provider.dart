@@ -14,7 +14,7 @@ class WeatherProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<WeatherRepository>(
-      create: (context) => YumemiWeatherAPIClient(),
+      create: (context) => YumemiWeatherApiClient(),
       child: _child,
     );
   }
