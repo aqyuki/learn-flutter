@@ -308,7 +308,7 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/yumemi_weather"
-      ref: main
+      ref: "5c93099f810c33917e81068e9df537d732ea67be"
       resolved-ref: "5c93099f810c33917e81068e9df537d732ea67be"
       url: "https://github.com/ymm-oss/flutter-training-template.git"
     source: git
