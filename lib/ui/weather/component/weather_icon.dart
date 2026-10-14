@@ -15,26 +15,13 @@ class WeatherIcon extends StatelessWidget {
       (repo) => repo.weather,
     );
 
-    if (weather == null) {
-      return const AspectRatio(aspectRatio: _aspectRatio, child: Placeholder());
-    }
+    final image = switch (weather?.condition) {
+      .sunny => SvgPicture.asset('assets/weather_icons/sunny.svg'),
+      .cloudy => SvgPicture.asset('assets/weather_icons/cloudy.svg'),
+      .rainy => SvgPicture.asset('assets/weather_icons/rainy.svg'),
+      null => const Placeholder(),
+    };
 
-    switch (weather.condition) {
-      case WeatherCondition.sunny:
-        return AspectRatio(
-          aspectRatio: _aspectRatio,
-          child: SvgPicture.asset('assets/weather_icons/sunny.svg'),
-        );
-      case WeatherCondition.cloudy:
-        return AspectRatio(
-          aspectRatio: _aspectRatio,
-          child: SvgPicture.asset('assets/weather_icons/cloudy.svg'),
-        );
-      case WeatherCondition.rainy:
-        return AspectRatio(
-          aspectRatio: _aspectRatio,
-          child: SvgPicture.asset('assets/weather_icons/rainy.svg'),
-        );
-    }
+    return AspectRatio(aspectRatio: _aspectRatio, child: image);
   }
 }
