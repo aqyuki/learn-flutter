@@ -60,7 +60,7 @@ class _WeatherPageState extends State<WeatherPage> {
               WeatherIcon(
                 condition: _weather?.condition,
               ),
-              const TemperatureDisplay(),
+              TemperatureDisplay(weather: _weather),
               Expanded(
                 child: Column(
                   children: [
