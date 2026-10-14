@@ -2,11 +2,8 @@ import 'package:flutter_training/feature/weather/model.dart';
 import 'package:flutter_training/feature/weather/repository.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
 
-class YumemiWeatherApiClient extends WeatherRepository {
-  YumemiWeatherApiClient();
-
-  final _client = YumemiWeather();
-
+class YumemiWeatherApiClient({required final YumemiWeather _client})
+    extends WeatherRepository {
   Weather? _weather;
 
   @override
