@@ -19,6 +19,10 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
   Weather? _weather;
 
+  void _onClose() {
+    Navigator.pop(context);
+  }
+
   void _onReload() {
     widget._repo.fetchWeather();
     setState(() => _weather = widget._repo.weather);
@@ -44,7 +48,7 @@ class _WeatherPageState extends State<WeatherPage> {
                     const SizedBox(
                       height: 80,
                     ),
-                    ActionDisplay(onReload: _onReload),
+                    ActionDisplay(onClose: _onClose, onReload: _onReload),
                   ],
                 ),
               ),
