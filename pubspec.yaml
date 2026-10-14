@@ -1,6 +1,6 @@
 name: flutter_training
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0+1
 
 environment:
@@ -10,6 +10,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_svg: ^2.3.0
+  yumemi_weather:
+    git:
+      url: https://github.com/ymm-oss/flutter-training-template.git
+      ref: 5c93099f810c33917e81068e9df537d732ea67be
+      path: packages/yumemi_weather
 
 dev_dependencies:
   flutter_test:
@@ -18,3 +24,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/weather_icons/
