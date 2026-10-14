@@ -16,9 +16,17 @@ enum WeatherCondition {
 }
 
 class Weather {
-  const Weather(this._condition);
+  const Weather({
+    required this._condition,
+    required this._maxTemperature,
+    required this._minTemperature,
+  });
 
   final WeatherCondition _condition;
+  final int _maxTemperature;
+  final int _minTemperature;
 
   WeatherCondition get condition => _condition;
+  int get maxTemperature => _maxTemperature;
+  int get minTemperature => _minTemperature;
 }
