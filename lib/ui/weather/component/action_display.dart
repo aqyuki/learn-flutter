@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_training/feature/weather/repository.dart';
 import 'package:flutter_training/ui/weather/component/action_button.dart';
-import 'package:provider/provider.dart';
 
 class ActionDisplay extends StatelessWidget {
-  const ActionDisplay({super.key});
+  const ActionDisplay({this._onReload, super.key});
+
+  final VoidCallback? _onReload;
 
   @override
   Widget build(BuildContext context) {
@@ -16,16 +16,10 @@ class ActionDisplay extends StatelessWidget {
         Expanded(
           child: ActionButton(
             text: 'Reload',
-            onPressed: () => onReloadPressed(context),
+            onPressed: _onReload,
           ),
         ),
       ],
     );
-  }
-
-  // Reloadボタンが押されたときの処理
-  void onReloadPressed(BuildContext context) {
-    final repo = context.read<WeatherRepository>();
-    repo.fetchWeather();
   }
 }
