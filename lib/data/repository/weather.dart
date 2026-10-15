@@ -1,3 +1,4 @@
+import 'package:flutter_training/feature/weather/error.dart';
 import 'package:flutter_training/feature/weather/model.dart';
 import 'package:flutter_training/feature/weather/repository.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
@@ -11,10 +12,23 @@ class YumemiWeatherApiClient({required final YumemiWeather _client})
 
   @override
   void fetchWeather() {
-    final res = _client.fetchSimpleWeather();
+    try {
+      final res = _client.fetchThrowsWeather('tokyo');
 
-    _weather = Weather(WeatherCondition.fromString(res));
+      _weather = Weather(WeatherCondition.fromString(res));
 
-    notifyListeners();
+      notifyListeners();
+    } on YumemiWeatherError catch (e) {
+      switch (e) {
+        case YumemiWeatherError.invalidParameter:
+          throw WeatherRepositoryException(
+            reason: WeatherRepositoryExceptionReason.invalidParameter,
+          );
+        case YumemiWeatherError.unknown:
+          throw WeatherRepositoryException(
+            reason: WeatherRepositoryExceptionReason.unknown,
+          );
+      }
+    }
   }
 }
