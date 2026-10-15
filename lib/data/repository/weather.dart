@@ -21,12 +21,12 @@ class YumemiWeatherApiClient({required final YumemiWeather _client})
     } on YumemiWeatherError catch (e) {
       switch (e) {
         case YumemiWeatherError.invalidParameter:
-          throw const WeatherRepositoryException(
-            WeatherRepositoryExceptionReason.invalidParameter,
+          throw WeatherRepositoryException(
+            reason: WeatherRepositoryExceptionReason.invalidParameter,
           );
         case YumemiWeatherError.unknown:
-          throw const WeatherRepositoryException(
-            WeatherRepositoryExceptionReason.unknown,
+          throw WeatherRepositoryException(
+            reason: WeatherRepositoryExceptionReason.unknown,
           );
       }
     }
