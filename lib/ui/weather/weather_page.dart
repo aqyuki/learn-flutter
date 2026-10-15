@@ -35,6 +35,7 @@ class _WeatherPageState extends State<WeatherPage> {
       final message = switch (e.reason) {
         .invalidParameter => 'リクエストが不正です。',
         .unknown => '天気情報の取得に失敗しました。',
+        .apiError => '天気情報の取得に失敗しました。',
       };
 
       unawaited(
