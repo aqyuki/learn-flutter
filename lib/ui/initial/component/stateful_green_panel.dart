@@ -15,14 +15,10 @@ class _StatefulGreenPanelState extends State<StatefulGreenPanel> {
   @override
   void initState() {
     super.initState();
-    _startTimer();
+    unawaited(_startTimer());
   }
 
-  void _startTimer() {
-    unawaited(_initTimer());
-  }
-
-  Future<void> _initTimer() async {
+  Future<void> _startTimer() async {
     await WidgetsBinding.instance.endOfFrame;
     if (!mounted) {
       return;
@@ -34,7 +30,7 @@ class _StatefulGreenPanelState extends State<StatefulGreenPanel> {
         return;
       }
 
-      _startTimer();
+      unawaited(_startTimer());
     });
   }
 
