@@ -130,7 +130,7 @@ final class WeatherControllerProvider
   }
 }
 
-String _$weatherControllerHash() => r'f275bfa199135b75a36e905e595ad926f0adbdd3';
+String _$weatherControllerHash() => r'daac407130565cce35daa219e66f4d9dc0c0bb4d';
 
 abstract class _$WeatherController extends $Notifier<Weather?> {
   Weather? build();
