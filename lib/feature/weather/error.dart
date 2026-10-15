@@ -8,6 +8,7 @@ class UnknownWeatherConditionError extends Error {
 enum WeatherRepositoryExceptionReason {
   invalidParameter,
   unknown,
+  apiError,
 }
 
 class WeatherRepositoryException({
@@ -18,5 +19,6 @@ class WeatherRepositoryException({
       'WeatherRepositoryException: ${switch (reason) {
         .invalidParameter => 'invalid parameter',
         .unknown => 'unknown error',
+        .apiError => 'API error',
       }}';
 }
