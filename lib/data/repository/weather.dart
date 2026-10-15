@@ -10,13 +10,8 @@ part 'weather.g.dart';
 
 class YumemiWeatherApiClient({required final YumemiWeather _client})
     extends WeatherRepository {
-  Weather? _weather;
-
   @override
-  Weather? get weather => _weather;
-
-  @override
-  void fetchWeather() {
+  Weather fetchWeather() {
     try {
       final request = YumemiWeatherApiRequest(
         area: 'Tokyo',
@@ -29,13 +24,11 @@ class YumemiWeatherApiClient({required final YumemiWeather _client})
 
       final condition = WeatherCondition.fromString(response.weatherCondition);
 
-      _weather = Weather(
+      return Weather(
         condition: condition,
         maxTemperature: response.maxTemperature,
         minTemperature: response.minTemperature,
       );
-
-      notifyListeners();
     } on YumemiWeatherError catch (e) {
       switch (e) {
         case YumemiWeatherError.invalidParameter:
