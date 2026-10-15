@@ -40,6 +40,10 @@ class YumemiWeatherApiClient({required final YumemiWeather _client})
             reason: WeatherRepositoryExceptionReason.unknown,
           );
       }
+    } on FormatException catch (_) {
+      throw WeatherRepositoryException(
+        reason: WeatherRepositoryExceptionReason.apiError,
+      );
     }
   }
 }
@@ -52,10 +56,20 @@ class YumemiWeatherApiResponse {
   });
 
   factory YumemiWeatherApiResponse.fromJson(Map<String, dynamic> json) {
-    return YumemiWeatherApiResponse(
-      weatherCondition: json['weather_condition'] as String,
-      maxTemperature: json['max_temperature'] as int,
-      minTemperature: json['min_temperature'] as int,
+    if (json case {
+      'weather_condition': final String weatherCondition,
+      'max_temperature': final int maxTemperature,
+      'min_temperature': final int minTemperature,
+    }) {
+      return YumemiWeatherApiResponse(
+        weatherCondition: weatherCondition,
+        maxTemperature: maxTemperature,
+        minTemperature: minTemperature,
+      );
+    }
+
+    throw const FormatException(
+      'Invalid JSON format for YumemiWeatherApiResponse',
     );
   }
 
