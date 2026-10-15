@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_training/feature/weather/error.dart';
 import 'package:flutter_training/feature/weather/model.dart';
 import 'package:flutter_training/feature/weather/repository.dart';
 import 'package:flutter_training/ui/weather/component/action_display.dart';
+import 'package:flutter_training/ui/weather/component/action_error_dialog.dart';
 import 'package:flutter_training/ui/weather/component/temperature_display.dart';
 import 'package:flutter_training/ui/weather/component/weather_icon.dart';
 
@@ -24,8 +28,25 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   void _onReload() {
-    widget._repo.fetchWeather();
-    setState(() => _weather = widget._repo.weather);
+    try {
+      widget._repo.fetchWeather();
+      setState(() => _weather = widget._repo.weather);
+    } on WeatherRepositoryException catch (e) {
+      final message = switch (e.reason) {
+        .invalidParameter => 'リクエストが不正です。',
+        .unknown => '天気情報の取得に失敗しました。',
+      };
+
+      unawaited(
+        showDialog<void>(
+          context: context,
+          builder: (_) => ActionErrorDialog(
+            title: 'エラー',
+            message: message,
+          ),
+        ),
+      );
+    }
   }
 
   @override
