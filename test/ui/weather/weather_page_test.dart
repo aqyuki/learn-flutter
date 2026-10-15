@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,7 +10,6 @@ import 'package:flutter_training/feature/weather/model.dart';
 import 'package:flutter_training/feature/weather/repository.dart';
 import 'package:flutter_training/ui/weather/weather_page.dart';
 import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 
 import 'weather_page_test.mocks.dart';
 
@@ -51,12 +52,15 @@ void main() {
         minTemperature: 15,
       );
 
-      final repo = MockWeatherRepository();
-      when(repo.fetchWeather()).thenReturn(weather);
+      final result = Completer<Weather>();
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [weatherRepositoryProvider.overrideWith((ref) => repo)],
+          overrides: [
+            weatherControllerProvider.overrideWith(
+              () => _TestWeatherController(result.future),
+            ),
+          ],
           child: const MaterialApp(home: WeatherPage()),
         ),
       );
@@ -74,7 +78,16 @@ void main() {
       // When
       // Reloadボタンをタップすることでデータの取得が行われ、画面が更新される
       await tester.tap(find.text('Reload'));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      // 取得中もアニメーションのフレームを進められる。
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      result.complete(weather);
       await tester.pumpAndSettle();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
 
       // Then
       // 晴れの画像が表示されており、最低気温と最高気温が正しく表示される
@@ -94,12 +107,15 @@ void main() {
         minTemperature: 15,
       );
 
-      final repo = MockWeatherRepository();
-      when(repo.fetchWeather()).thenReturn(weather);
+      final result = Completer<Weather>();
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [weatherRepositoryProvider.overrideWith((ref) => repo)],
+          overrides: [
+            weatherControllerProvider.overrideWith(
+              () => _TestWeatherController(result.future),
+            ),
+          ],
           child: const MaterialApp(home: WeatherPage()),
         ),
       );
@@ -117,7 +133,16 @@ void main() {
       // When
       // Reloadボタンをタップすることでデータの取得が行われ、画面が更新される
       await tester.tap(find.text('Reload'));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      // 取得中もアニメーションのフレームを進められる。
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      result.complete(weather);
       await tester.pumpAndSettle();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
 
       // Then
       // 曇りの画像が表示されており、最低気温と最高気温が正しく表示される
@@ -137,12 +162,15 @@ void main() {
         minTemperature: 15,
       );
 
-      final repo = MockWeatherRepository();
-      when(repo.fetchWeather()).thenReturn(weather);
+      final result = Completer<Weather>();
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [weatherRepositoryProvider.overrideWith((ref) => repo)],
+          overrides: [
+            weatherControllerProvider.overrideWith(
+              () => _TestWeatherController(result.future),
+            ),
+          ],
           child: const MaterialApp(home: WeatherPage()),
         ),
       );
@@ -160,7 +188,17 @@ void main() {
       // When
       // Reloadボタンをタップすることでデータの取得が行われ、画面が更新される
       await tester.tap(find.text('Reload'));
+      await tester.pump();
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      // 取得中もアニメーションのフレームを進められる。
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      result.complete(weather);
       await tester.pumpAndSettle();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
 
       // Then
       // 雨の画像が表示されており、最低気温と最高気温が正しく表示される
@@ -173,16 +211,15 @@ void main() {
     testWidgets('エラー発生時にダイアログを表示する', (tester) async {
       _setDevicePixelRatioAndPhysicalSize(tester);
 
-      // Given
-      final repo = MockWeatherRepository();
-      when(repo.fetchWeather()).thenThrow(
-        WeatherRepositoryException(reason: .unknown),
-      );
+      // Give
+      final result = Completer<Weather>();
 
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            weatherRepositoryProvider.overrideWith((ref) => repo),
+            weatherControllerProvider.overrideWith(
+              () => _TestWeatherController(result.future),
+            ),
           ],
           child: const MaterialApp(home: WeatherPage()),
         ),
@@ -190,7 +227,12 @@ void main() {
 
       // When
       await tester.tap(find.text('Reload'));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      result.completeError(WeatherRepositoryException(reason: .unknown));
       await tester.pumpAndSettle();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
 
       // Then
       final dialog = find.byType(AlertDialog);
@@ -223,4 +265,20 @@ void main() {
       expect(find.byType(AlertDialog), findsNothing);
     });
   });
+}
+
+// 実Isolateの動作はControllerのテストで確認し、画面テストでは完了を制御する。
+class _TestWeatherController extends WeatherController {
+  _TestWeatherController(this._result);
+
+  final Future<Weather> _result;
+
+  @override
+  Future<void> reload() async {
+    final weather = await _result;
+    if (!ref.mounted) {
+      return;
+    }
+    state = weather;
+  }
 }

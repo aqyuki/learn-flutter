@@ -29,7 +29,7 @@ void main() {
         verifyNever(repo.fetchWeather());
       });
 
-      test('reloadを呼び出すとリポジトリから取得した天気を取得できること', () {
+      test('reloadを呼び出すとリポジトリから取得した天気を取得できること', () async {
         const weather = Weather(
           condition: WeatherCondition.sunny,
           maxTemperature: 25,
@@ -50,15 +50,14 @@ void main() {
         );
         final controller = container.read(weatherControllerProvider.notifier);
 
-        controller.reload();
+        await controller.reload();
         final actual = subscription.read();
 
-        expect(actual, same(weather));
-        expect(notifications, [same(weather)]);
-        verify(repo.fetchWeather()).called(1);
+        expect(actual, _matchesWeather(weather));
+        expect(notifications, [_matchesWeather(weather)]);
       });
 
-      test('再取得すると新しい天気に更新され、購読側へ通知されること', () {
+      test('再取得すると新しい天気に更新され、購読側へ通知されること', () async {
         const firstWeather = Weather(
           condition: WeatherCondition.sunny,
           maxTemperature: 25,
@@ -82,20 +81,22 @@ void main() {
         );
         final controller = container.read(weatherControllerProvider.notifier);
 
-        controller.reload();
-        expect(subscription.read(), same(firstWeather));
+        await controller.reload();
+        expect(subscription.read(), _matchesWeather(firstWeather));
 
         when(repo.fetchWeather()).thenReturn(nextWeather);
-        controller.reload();
+        await controller.reload();
 
-        expect(subscription.read(), same(nextWeather));
-        expect(notifications, [same(firstWeather), same(nextWeather)]);
-        verify(repo.fetchWeather()).called(2);
+        expect(subscription.read(), _matchesWeather(nextWeather));
+        expect(notifications, [
+          _matchesWeather(firstWeather),
+          _matchesWeather(nextWeather),
+        ]);
       });
     });
 
     group('異常系', () {
-      test('リポジトリが例外を投げた場合、内部状態が変化しないこと', () {
+      test('リポジトリが例外を投げた場合、内部状態が変化しないこと', () async {
         final error = WeatherRepositoryException(reason: .unknown);
         final repo = MockWeatherRepository();
         when(repo.fetchWeather()).thenThrow(error);
@@ -112,9 +113,15 @@ void main() {
         final actualBefore = subscription.read();
         final controller = container.read(weatherControllerProvider.notifier);
 
-        expect(
-          controller.reload,
-          throwsA(same(error)),
+        await expectLater(
+          controller.reload(),
+          throwsA(
+            isA<WeatherRepositoryException>().having(
+              (e) => e.reason,
+              'reason',
+              error.reason,
+            ),
+          ),
         );
 
         final actualAfter = subscription.read();
@@ -122,12 +129,10 @@ void main() {
         expect(actualBefore, isNull);
         expect(actualAfter, isNull);
         expect(notifications, isEmpty);
-
-        verify(repo.fetchWeather()).called(1);
       });
 
       for (final reason in WeatherRepositoryExceptionReason.values) {
-        test('再取得が${reason.name}で失敗しても取得済みの天気を維持し、通知しないこと', () {
+        test('再取得が${reason.name}で失敗しても取得済みの天気を維持し、通知しないこと', () async {
           const weather = Weather(
             condition: WeatherCondition.sunny,
             maxTemperature: 25,
@@ -147,19 +152,33 @@ void main() {
           );
           final controller = container.read(weatherControllerProvider.notifier);
 
-          controller.reload();
-          expect(subscription.read(), same(weather));
-          expect(notifications, [same(weather)]);
+          await controller.reload();
+          expect(subscription.read(), _matchesWeather(weather));
+          expect(notifications, [_matchesWeather(weather)]);
           notifications.clear();
 
           when(repo.fetchWeather()).thenThrow(error);
 
-          expect(controller.reload, throwsA(same(error)));
-          expect(subscription.read(), same(weather));
+          await expectLater(
+            controller.reload(),
+            throwsA(
+              isA<WeatherRepositoryException>().having(
+                (e) => e.reason,
+                'reason',
+                error.reason,
+              ),
+            ),
+          );
+          expect(subscription.read(), _matchesWeather(weather));
           expect(notifications, isEmpty);
-          verify(repo.fetchWeather()).called(2);
         });
       }
     });
   });
 }
+
+// Isolateをまたぐ結果は、同一性ではなく各プロパティで比較する。
+Matcher _matchesWeather(Weather expected) => isA<Weather>()
+    .having((w) => w.condition, 'condition', expected.condition)
+    .having((w) => w.maxTemperature, 'maxTemperature', expected.maxTemperature)
+    .having((w) => w.minTemperature, 'minTemperature', expected.minTemperature);

@@ -11,17 +11,34 @@ import 'package:flutter_training/ui/weather/component/weather_icon.dart';
 
 const _viewWidthFactor = 0.5;
 
-class WeatherPage extends ConsumerWidget {
+class WeatherPage extends ConsumerStatefulWidget {
   const WeatherPage({super.key});
+
+  @override
+  ConsumerState<WeatherPage> createState() => _WeatherPageState();
+}
+
+class _WeatherPageState extends ConsumerState<WeatherPage> {
+  var _isLoading = false;
 
   void _onClose(BuildContext context) {
     Navigator.pop(context);
   }
 
-  void _onReload(BuildContext context, WidgetRef ref) {
+  Future<void> _onReload() async {
+    if (_isLoading) {
+      return;
+    }
+
     try {
-      ref.read(weatherControllerProvider.notifier).reload();
+      setState(() => _isLoading = true);
+
+      await ref.read(weatherControllerProvider.notifier).reload();
     } on WeatherRepositoryException catch (e) {
+      if (!mounted) {
+        return;
+      }
+
       final message = switch (e.reason) {
         .invalidParameter => 'リクエストが不正です。',
         .unknown => '天気情報の取得に失敗しました。',
@@ -35,41 +52,55 @@ class WeatherPage extends ConsumerWidget {
           message: message,
         ),
       );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final weather = ref.watch(weatherControllerProvider);
 
     return Scaffold(
-      body: Align(
-        child: FractionallySizedBox(
-          alignment: Alignment.topCenter,
-          widthFactor: _viewWidthFactor,
-          child: Column(
-            children: [
-              const Spacer(),
-              WeatherIcon(
-                condition: weather?.condition,
-              ),
-              TemperatureDisplay(weather: weather),
-              Expanded(
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 80,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Align(
+            child: FractionallySizedBox(
+              alignment: Alignment.topCenter,
+              widthFactor: _viewWidthFactor,
+              child: Column(
+                children: [
+                  const Spacer(),
+                  WeatherIcon(
+                    condition: weather?.condition,
+                  ),
+                  TemperatureDisplay(weather: weather),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const SizedBox(
+                          height: 80,
+                        ),
+                        ActionDisplay(
+                          onClose: () => _onClose(context),
+                          onReload: _onReload,
+                        ),
+                      ],
                     ),
-                    ActionDisplay(
-                      onClose: () => _onClose(context),
-                      onReload: () => _onReload(context, ref),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          if (_isLoading) ...[
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ],
+        ],
       ),
     );
   }

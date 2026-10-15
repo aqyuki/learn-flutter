@@ -1,5 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+// ignore_for_file: document_ignores, cast_nullable_to_non_nullable
+
 part of 'weather_provider.dart';
 
 // **************************************************************************
@@ -130,7 +132,7 @@ final class WeatherControllerProvider
   }
 }
 
-String _$weatherControllerHash() => r'daac407130565cce35daa219e66f4d9dc0c0bb4d';
+String _$weatherControllerHash() => r'55c1ce9f0c97c9b82b760d5fd909f03bb96b52b6';
 
 abstract class _$WeatherController extends $Notifier<Weather?> {
   Weather? build();

@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:flutter_training/data/repository/weather.dart';
 import 'package:flutter_training/feature/weather/model.dart';
 import 'package:flutter_training/feature/weather/repository.dart';
@@ -25,8 +27,14 @@ class WeatherController extends _$WeatherController {
     return null;
   }
 
-  void reload() {
+  Future<void> reload() async {
     final repo = ref.read(weatherRepositoryProvider);
-    state = repo.fetchWeather();
+    final weather = await Isolate.run(repo.fetchWeather);
+
+    if (!ref.mounted) {
+      return;
+    }
+
+    state = weather;
   }
 }
