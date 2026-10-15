@@ -19,6 +19,10 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
   Weather? _weather;
 
+  void _onClose() {
+    Navigator.pop(context);
+  }
+
   void _onReload() {
     widget._repo.fetchWeather();
     setState(() => _weather = widget._repo.weather);
@@ -26,28 +30,30 @@ class _WeatherPageState extends State<WeatherPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: FractionallySizedBox(
-        widthFactor: _viewWidthFactor,
-        child: Column(
-          children: [
-            const Spacer(),
-            WeatherIcon(
-              condition: _weather?.condition,
-            ),
-            const TemperatureDisplay(),
-            Expanded(
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 80,
-                  ),
-                  ActionDisplay(onReload: _onReload),
-                ],
+    return Scaffold(
+      body: Align(
+        child: FractionallySizedBox(
+          alignment: Alignment.topCenter,
+          widthFactor: _viewWidthFactor,
+          child: Column(
+            children: [
+              const Spacer(),
+              WeatherIcon(
+                condition: _weather?.condition,
               ),
-            ),
-          ],
+              const TemperatureDisplay(),
+              Expanded(
+                child: Column(
+                  children: [
+                    const SizedBox(
+                      height: 80,
+                    ),
+                    ActionDisplay(onClose: _onClose, onReload: _onReload),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
