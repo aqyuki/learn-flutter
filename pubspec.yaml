@@ -10,8 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_riverpod: ^3.4.3
   flutter_svg: ^2.3.0
   json_annotation: ^4.12.0
+  riverpod_annotation: ^4.0.7
   yumemi_weather:
     git:
       url: https://github.com/ymm-oss/flutter-training-template.git
@@ -23,6 +25,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   json_serializable: ^6.14.1
+  riverpod_generator: ^4.0.9
   yumemi_lints: ^4.4.0
 
 flutter:
