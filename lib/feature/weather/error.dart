@@ -10,16 +10,12 @@ enum WeatherRepositoryExceptionReason {
   unknown,
 }
 
-class WeatherRepositoryException implements Exception {
-  const WeatherRepositoryException(this._reason);
-
-  final WeatherRepositoryExceptionReason _reason;
-
-  WeatherRepositoryExceptionReason get reason => _reason;
-
+class WeatherRepositoryException({
+  required final WeatherRepositoryExceptionReason reason,
+}) implements Exception {
   @override
   String toString() =>
-      'WeatherRepositoryException: ${switch (_reason) {
+      'WeatherRepositoryException: ${switch (reason) {
         .invalidParameter => 'invalid parameter',
         .unknown => 'unknown error',
       }}';
