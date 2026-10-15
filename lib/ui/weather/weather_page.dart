@@ -38,12 +38,10 @@ class _WeatherPageState extends State<WeatherPage> {
       };
 
       unawaited(
-        showDialog<void>(
+        ActionErrorDialog.show(
           context: context,
-          builder: (_) => ActionErrorDialog(
-            title: 'エラー',
-            message: message,
-          ),
+          title: 'エラー',
+          message: message,
         ),
       );
     }
