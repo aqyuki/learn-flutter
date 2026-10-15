@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_training/data/weather_provider.dart';
 import 'package:flutter_training/feature/weather/error.dart';
-import 'package:flutter_training/feature/weather/model.dart';
-import 'package:flutter_training/feature/weather/repository.dart';
 import 'package:flutter_training/ui/weather/component/action_display.dart';
 import 'package:flutter_training/ui/weather/component/action_error_dialog.dart';
 import 'package:flutter_training/ui/weather/component/temperature_display.dart';
@@ -11,30 +11,20 @@ import 'package:flutter_training/ui/weather/component/weather_icon.dart';
 
 const _viewWidthFactor = 0.5;
 
-class WeatherPage extends StatefulWidget {
-  const WeatherPage({required this._repo, super.key});
+class WeatherPage extends ConsumerWidget {
+  const WeatherPage({super.key});
 
-  final WeatherRepository _repo;
-
-  @override
-  State<WeatherPage> createState() => _WeatherPageState();
-}
-
-class _WeatherPageState extends State<WeatherPage> {
-  Weather? _weather;
-
-  void _onClose() {
+  void _onClose(BuildContext context) {
     Navigator.pop(context);
   }
 
-  void _onReload() {
+  void _onReload(BuildContext context, WidgetRef ref) {
     try {
-      widget._repo.fetchWeather();
-      setState(() => _weather = widget._repo.weather);
+      ref.read(weatherControllerProvider.notifier).reload();
     } on WeatherRepositoryException catch (e) {
       final message = switch (e.reason) {
-        .invalidParameter => 'リクエストが不正です。',
-        .unknown => '天気情報の取得に失敗しました。',
+        WeatherRepositoryExceptionReason.invalidParameter => 'リクエストが不正です。',
+        WeatherRepositoryExceptionReason.unknown => '天気情報の取得に失敗しました。',
       };
 
       unawaited(
@@ -50,7 +40,9 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weather = ref.watch(weatherControllerProvider);
+
     return Scaffold(
       body: Align(
         child: FractionallySizedBox(
@@ -60,16 +52,19 @@ class _WeatherPageState extends State<WeatherPage> {
             children: [
               const Spacer(),
               WeatherIcon(
-                condition: _weather?.condition,
+                condition: weather?.condition,
               ),
-              TemperatureDisplay(weather: _weather),
+              TemperatureDisplay(weather: weather),
               Expanded(
                 child: Column(
                   children: [
                     const SizedBox(
                       height: 80,
                     ),
-                    ActionDisplay(onClose: _onClose, onReload: _onReload),
+                    ActionDisplay(
+                      onClose: () => _onClose(context),
+                      onReload: () => _onReload(context, ref),
+                    ),
                   ],
                 ),
               ),
