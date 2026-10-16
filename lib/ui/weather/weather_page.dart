@@ -18,58 +18,70 @@ class WeatherPage extends ConsumerWidget {
     Navigator.pop(context);
   }
 
-  void _onReload(BuildContext context, WidgetRef ref) {
-    try {
-      ref.read(weatherControllerProvider.notifier).reload();
-    } on WeatherRepositoryException catch (e) {
-      final message = switch (e.reason) {
-        .invalidParameter => 'リクエストが不正です。',
-        .unknown => '天気情報の取得に失敗しました。',
-        .apiError => '天気情報の取得に失敗しました。',
-      };
-
-      unawaited(
-        ActionErrorDialog.show(
-          context: context,
-          title: 'エラー',
-          message: message,
-        ),
-      );
-    }
+  Future<void> _onReload(WidgetRef ref) async {
+    final weather = ref.read(weatherControllerProvider.notifier);
+    await weather.reload();
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weather = ref.watch(weatherControllerProvider);
+    ref.listen(weatherControllerProvider, (_, next) {
+      if (next.isLoading) {
+        return;
+      }
+
+      if (next.error case WeatherRepositoryException(:final reason)) {
+        unawaited(
+          ActionErrorDialog.show(
+            context: context,
+            title: 'エラー',
+            message: switch (reason) {
+              .invalidParameter => 'リクエストが不正です。',
+              .unknown => '天気情報の取得に失敗しました。',
+              .apiError => '天気情報の取得に失敗しました。',
+            },
+          ),
+        );
+      }
+    });
 
     return Scaffold(
-      body: Align(
-        child: FractionallySizedBox(
-          alignment: Alignment.topCenter,
-          widthFactor: _viewWidthFactor,
-          child: Column(
-            children: [
-              const Spacer(),
-              WeatherIcon(
-                condition: weather?.condition,
-              ),
-              TemperatureDisplay(weather: weather),
-              Expanded(
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 80,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Align(
+            child: FractionallySizedBox(
+              alignment: Alignment.topCenter,
+              widthFactor: _viewWidthFactor,
+              child: Column(
+                children: [
+                  const Spacer(),
+                  WeatherIcon(
+                    condition: weather.value?.condition,
+                  ),
+                  TemperatureDisplay(weather: weather.value),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const SizedBox(
+                          height: 80,
+                        ),
+                        ActionDisplay(
+                          onClose: () => _onClose(context),
+                          onReload: () => _onReload(ref),
+                        ),
+                      ],
                     ),
-                    ActionDisplay(
-                      onClose: () => _onClose(context),
-                      onReload: () => _onReload(context, ref),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          if (weather.isLoading) ...[
+            const Center(child: CircularProgressIndicator()),
+          ],
+        ],
       ),
     );
   }

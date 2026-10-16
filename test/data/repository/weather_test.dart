@@ -24,7 +24,7 @@ void main() {
           test('$conditionが適切に変換されること', () {
             final client = MockYumemiWeather();
             when(
-              client.fetchWeather(any),
+              client.syncFetchWeather(any),
             ).thenReturn(
               '''{"weather_condition":"$condition","max_temperature":25,"min_temperature": 15}''',
             );
@@ -35,7 +35,7 @@ void main() {
 
             expect(result.condition, conditions[condition]);
             verify(
-              client.fetchWeather(any),
+              client.syncFetchWeather(any),
             ).called(1);
           });
         }
@@ -44,7 +44,7 @@ void main() {
       test('APIが返す気温を対応したプロパティに保存すること', () {
         final client = MockYumemiWeather();
         when(
-          client.fetchWeather(any),
+          client.syncFetchWeather(any),
         ).thenReturn(
           '''{"weather_condition":"sunny","max_temperature":25,"min_temperature":15}''',
         );
@@ -56,7 +56,7 @@ void main() {
         expect(result.maxTemperature, 25);
         expect(result.minTemperature, 15);
         verify(
-          client.fetchWeather(any),
+          client.syncFetchWeather(any),
         ).called(1);
       });
     });
@@ -67,7 +67,7 @@ void main() {
         () {
           final client = MockYumemiWeather();
           when(
-            client.fetchWeather(any),
+            client.syncFetchWeather(any),
           ).thenReturn(
             '''{"weather_condition":"unknown_condition","max_temperature":25,"min_temperature":15}''',
           );
@@ -79,7 +79,7 @@ void main() {
             throwsA(const TypeMatcher<UnknownWeatherConditionError>()),
           );
           verify(
-            client.fetchWeather(any),
+            client.syncFetchWeather(any),
           ).called(1);
         },
       );
@@ -87,7 +87,7 @@ void main() {
       test('APIがInvalid Parameterを返した際に、WeatherRepositoryExceptionを投げること', () {
         final client = MockYumemiWeather();
         when(
-          client.fetchWeather(any),
+          client.syncFetchWeather(any),
         ).thenThrow(
           YumemiWeatherError.invalidParameter,
         );
@@ -105,14 +105,14 @@ void main() {
           ),
         );
         verify(
-          client.fetchWeather(any),
+          client.syncFetchWeather(any),
         ).called(1);
       });
 
       test('APIがUnknownを返した際に、WeatherRepositoryExceptionを投げること', () {
         final client = MockYumemiWeather();
         when(
-          client.fetchWeather(any),
+          client.syncFetchWeather(any),
         ).thenThrow(
           YumemiWeatherError.unknown,
         );
@@ -130,7 +130,7 @@ void main() {
           ),
         );
         verify(
-          client.fetchWeather(any),
+          client.syncFetchWeather(any),
         ).called(1);
       });
     });

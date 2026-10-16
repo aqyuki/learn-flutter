@@ -18,7 +18,9 @@ class YumemiWeatherApiClient({required final YumemiWeather _client})
         date: DateTime(2026, 10, 14, 12),
       );
 
-      final rawResponse = _client.fetchWeather(jsonEncode(request.toJson()));
+      final rawResponse = _client.syncFetchWeather(
+        jsonEncode(request.toJson()),
+      );
       final decodedResponse = jsonDecode(rawResponse) as Map<String, dynamic>;
       final response = YumemiWeatherApiResponse.fromJson(decodedResponse);
 
