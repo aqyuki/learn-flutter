@@ -15,6 +15,26 @@ import 'weather_page_test.mocks.dart';
 @GenerateMocks([WeatherRepository])
 void main() {
   group('WeatherPage', () {
+    testWidgets('初期状態ではプレースホルダーが表示されること', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(402, 874);
+
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final repo = MockWeatherRepository();
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [weatherRepositoryProvider.overrideWith((ref) => repo)],
+          child: const MaterialApp(home: WeatherPage()),
+        ),
+      );
+
+      expect(find.byType(Placeholder), findsOne);
+      expect(find.text('** ℃'), findsExactly(2));
+    });
+
     testWidgets('天気情報が晴れのときに晴れの画像が表示されること', (tester) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = const Size(402, 874);
