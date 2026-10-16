@@ -100,11 +100,52 @@ final class WeatherRepositoryProvider
 
 String _$weatherRepositoryHash() => r'5147f8e1f912415de12d32e07b665ee1ca8d5e3b';
 
+@ProviderFor(weatherLoader)
+final weatherLoaderProvider = WeatherLoaderProvider._();
+
+final class WeatherLoaderProvider
+    extends $FunctionalProvider<WeatherLoader, WeatherLoader, WeatherLoader>
+    with $Provider<WeatherLoader> {
+  WeatherLoaderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'weatherLoaderProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$weatherLoaderHash();
+
+  @$internal
+  @override
+  $ProviderElement<WeatherLoader> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  WeatherLoader create(Ref ref) {
+    return weatherLoader(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WeatherLoader value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WeatherLoader>(value),
+    );
+  }
+}
+
+String _$weatherLoaderHash() => r'32467cb1f5cfdbbdcf38d4fb1cec8ca511a0cbc6';
+
 @ProviderFor(WeatherController)
 final weatherControllerProvider = WeatherControllerProvider._();
 
 final class WeatherControllerProvider
-    extends $NotifierProvider<WeatherController, Weather?> {
+    extends $AsyncNotifierProvider<WeatherController, Weather?> {
   WeatherControllerProvider._()
     : super(
         from: null,
@@ -122,29 +163,21 @@ final class WeatherControllerProvider
   @$internal
   @override
   WeatherController create() => WeatherController();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Weather? value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<Weather?>(value),
-    );
-  }
 }
 
-String _$weatherControllerHash() => r'55c1ce9f0c97c9b82b760d5fd909f03bb96b52b6';
+String _$weatherControllerHash() => r'a2088d2082aef1ffec91264d023f55e49f68ab39';
 
-abstract class _$WeatherController extends $Notifier<Weather?> {
-  Weather? build();
+abstract class _$WeatherController extends $AsyncNotifier<Weather?> {
+  FutureOr<Weather?> build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<Weather?, Weather?>;
+    final ref = this.ref as $Ref<AsyncValue<Weather?>, Weather?>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<Weather?, Weather?>,
-              Weather?,
+              AnyNotifier<AsyncValue<Weather?>, Weather?>,
+              AsyncValue<Weather?>,
               Object?,
               Object?
             >;

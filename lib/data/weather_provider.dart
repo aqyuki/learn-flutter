@@ -8,6 +8,8 @@ import 'package:yumemi_weather/yumemi_weather.dart';
 
 part 'weather_provider.g.dart';
 
+typedef WeatherLoader = Future<Weather?> Function();
+
 @riverpod
 YumemiWeather yumemiWeatherClient(Ref ref) {
   return YumemiWeather();
@@ -21,20 +23,34 @@ WeatherRepository weatherRepository(Ref ref) {
 }
 
 @riverpod
+WeatherLoader weatherLoader(Ref ref) {
+  final repo = ref.watch(weatherRepositoryProvider);
+
+  return () => Isolate.run(repo.fetchWeather);
+}
+
+@riverpod
 class WeatherController extends _$WeatherController {
   @override
-  Weather? build() {
+  FutureOr<Weather?> build() {
     return null;
   }
 
   Future<void> reload() async {
-    final repo = ref.read(weatherRepositoryProvider);
-    final weather = await Isolate.run(repo.fetchWeather);
+    final load = ref.read(weatherLoaderProvider);
+
+    // ロード中なら再取得しない
+    if (state.isLoading) {
+      return;
+    }
+
+    state = const AsyncValue.loading();
+    final result = await AsyncValue.guard(load);
 
     if (!ref.mounted) {
       return;
     }
 
-    state = weather;
+    state = result;
   }
 }
