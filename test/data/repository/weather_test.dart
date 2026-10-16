@@ -135,4 +135,55 @@ void main() {
       });
     });
   });
+
+  group('YumemiWeatherApiRequest', () {
+    test('jsonに変換できること', () {
+      final request = YumemiWeatherApiRequest(
+        area: 'Tokyo',
+        date: DateTime.parse('2024-06-01T00:00:00.000Z'),
+      );
+
+      final json = request.toJson();
+      expect(json['area'], 'Tokyo');
+      expect(json['date'], '2024-06-01T00:00:00.000Z');
+    });
+
+    test('jsonから復元できること', () {
+      final json = {
+        'area': 'Tokyo',
+        'date': '2024-06-01T00:00:00.000Z',
+      };
+
+      final request = YumemiWeatherApiRequest.fromJson(json);
+      expect(request.area, 'Tokyo');
+      expect(request.date, DateTime.parse('2024-06-01T00:00:00.000Z'));
+    });
+  });
+  group('YumemiWeatherApiResponse', () {
+    test('jsonに変換できること', () {
+      final response = YumemiWeatherApiResponse(
+        weatherCondition: 'sunny',
+        maxTemperature: 30,
+        minTemperature: 20,
+      );
+
+      final json = response.toJson();
+      expect(json['weather_condition'], 'sunny');
+      expect(json['max_temperature'], 30);
+      expect(json['min_temperature'], 20);
+    });
+
+    test('jsonから復元できること', () {
+      final json = {
+        'weather_condition': 'sunny',
+        'max_temperature': 30,
+        'min_temperature': 20,
+      };
+
+      final response = YumemiWeatherApiResponse.fromJson(json);
+      expect(response.weatherCondition, 'sunny');
+      expect(response.maxTemperature, 30);
+      expect(response.minTemperature, 20);
+    });
+  });
 }
