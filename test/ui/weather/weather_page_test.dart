@@ -12,15 +12,18 @@ import 'package:mockito/mockito.dart';
 
 import 'weather_page_test.mocks.dart';
 
+void _setDevicePixelRatioAndPhysicalSize(WidgetTester tester) {
+  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = const Size(402, 874);
+  addTearDown(tester.view.resetDevicePixelRatio);
+  addTearDown(tester.view.resetPhysicalSize);
+}
+
 @GenerateMocks([WeatherRepository])
 void main() {
   group('WeatherPage', () {
     testWidgets('初期状態ではプレースホルダーが表示されること', (tester) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(402, 874);
-
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _setDevicePixelRatioAndPhysicalSize(tester);
 
       final repo = MockWeatherRepository();
 
@@ -36,11 +39,7 @@ void main() {
     });
 
     testWidgets('天気情報が晴れのときに晴れの画像が表示されること', (tester) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(402, 874);
-
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _setDevicePixelRatioAndPhysicalSize(tester);
 
       // Given
       const weather = Weather(
@@ -87,11 +86,7 @@ void main() {
     });
 
     testWidgets('天気情報が曇りのときに曇りの画像が表示されること', (tester) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(402, 874);
-
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _setDevicePixelRatioAndPhysicalSize(tester);
 
       // Given
       const weather = Weather(
@@ -138,11 +133,7 @@ void main() {
     });
 
     testWidgets('天気情報が雨のときに雨の画像が表示されること', (tester) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(402, 874);
-
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _setDevicePixelRatioAndPhysicalSize(tester);
 
       // Given
       const weather = Weather(
@@ -189,11 +180,7 @@ void main() {
     });
 
     testWidgets('エラー発生時にダイアログを表示する', (tester) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(402, 874);
-
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
+      _setDevicePixelRatioAndPhysicalSize(tester);
 
       // Give
       final repo = MockWeatherRepository();
