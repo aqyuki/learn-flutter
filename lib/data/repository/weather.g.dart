@@ -1,5 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+// ignore_for_file: document_ignores, cast_nullable_to_non_nullable
+
 part of 'weather.dart';
 
 // **************************************************************************
@@ -8,10 +10,13 @@ part of 'weather.dart';
 
 YumemiWeatherApiRequest _$YumemiWeatherApiRequestFromJson(
   Map<String, dynamic> json,
-) => YumemiWeatherApiRequest(
-  area: json['area'] as String,
-  date: DateTime.parse(json['date'] as String),
-);
+) => $checkedCreate('YumemiWeatherApiRequest', json, ($checkedConvert) {
+  final val = YumemiWeatherApiRequest(
+    area: $checkedConvert('area', (v) => v as String),
+    date: $checkedConvert('date', (v) => DateTime.parse(v as String)),
+  );
+  return val;
+});
 
 Map<String, dynamic> _$YumemiWeatherApiRequestToJson(
   YumemiWeatherApiRequest instance,
@@ -22,10 +27,31 @@ Map<String, dynamic> _$YumemiWeatherApiRequestToJson(
 
 YumemiWeatherApiResponse _$YumemiWeatherApiResponseFromJson(
   Map<String, dynamic> json,
-) => YumemiWeatherApiResponse(
-  weatherCondition: json['weather_condition'] as String,
-  maxTemperature: (json['max_temperature'] as num).toInt(),
-  minTemperature: (json['min_temperature'] as num).toInt(),
+) => $checkedCreate(
+  'YumemiWeatherApiResponse',
+  json,
+  ($checkedConvert) {
+    final val = YumemiWeatherApiResponse(
+      weatherCondition: $checkedConvert(
+        'weather_condition',
+        (v) => v as String,
+      ),
+      maxTemperature: $checkedConvert(
+        'max_temperature',
+        (v) => (v as num).toInt(),
+      ),
+      minTemperature: $checkedConvert(
+        'min_temperature',
+        (v) => (v as num).toInt(),
+      ),
+    );
+    return val;
+  },
+  fieldKeyMap: const {
+    'weatherCondition': 'weather_condition',
+    'maxTemperature': 'max_temperature',
+    'minTemperature': 'min_temperature',
+  },
 );
 
 Map<String, dynamic> _$YumemiWeatherApiResponseToJson(
