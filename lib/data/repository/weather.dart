@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:flutter_training/feature/weather/error.dart';
 import 'package:flutter_training/feature/weather/model.dart';
 import 'package:flutter_training/feature/weather/repository.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:yumemi_weather/yumemi_weather.dart';
+
+part 'weather.g.dart';
 
 class YumemiWeatherApiClient({required final YumemiWeather _client})
     extends WeatherRepository {
@@ -15,8 +18,12 @@ class YumemiWeatherApiClient({required final YumemiWeather _client})
   @override
   void fetchWeather() {
     try {
-      const request = '{"area": "tokyo", "date": "2026-10-14T12:00:00+09:00"}';
-      final rawResponse = _client.fetchWeather(request);
+      final request = YumemiWeatherApiRequest(
+        area: 'Tokyo',
+        date: DateTime(2026, 10, 14, 12),
+      );
+
+      final rawResponse = _client.fetchWeather(jsonEncode(request.toJson()));
       final decodedResponse = jsonDecode(rawResponse) as Map<String, dynamic>;
       final response = YumemiWeatherApiResponse.fromJson(decodedResponse);
 
@@ -40,7 +47,7 @@ class YumemiWeatherApiClient({required final YumemiWeather _client})
             reason: WeatherRepositoryExceptionReason.unknown,
           );
       }
-    } on FormatException catch (_) {
+    } on CheckedFromJsonException catch (_) {
       throw WeatherRepositoryException(
         reason: WeatherRepositoryExceptionReason.apiError,
       );
@@ -48,36 +55,36 @@ class YumemiWeatherApiClient({required final YumemiWeather _client})
   }
 }
 
-class YumemiWeatherApiResponse {
-  YumemiWeatherApiResponse({
-    required this._weatherCondition,
-    required this._maxTemperature,
-    required this._minTemperature,
+@JsonSerializable()
+class YumemiWeatherApiRequest {
+  YumemiWeatherApiRequest({
+    required this.area,
+    required this.date,
   });
 
-  factory YumemiWeatherApiResponse.fromJson(Map<String, dynamic> json) {
-    if (json case {
-      'weather_condition': final String weatherCondition,
-      'max_temperature': final int maxTemperature,
-      'min_temperature': final int minTemperature,
-    }) {
-      return YumemiWeatherApiResponse(
-        weatherCondition: weatherCondition,
-        maxTemperature: maxTemperature,
-        minTemperature: minTemperature,
-      );
-    }
+  factory YumemiWeatherApiRequest.fromJson(Map<String, dynamic> json) =>
+      _$YumemiWeatherApiRequestFromJson(json);
 
-    throw const FormatException(
-      'Invalid JSON format for YumemiWeatherApiResponse',
-    );
-  }
+  final String area;
+  final DateTime date;
 
-  final String _weatherCondition;
-  final int _maxTemperature;
-  final int _minTemperature;
+  Map<String, dynamic> toJson() => _$YumemiWeatherApiRequestToJson(this);
+}
 
-  String get weatherCondition => _weatherCondition;
-  int get maxTemperature => _maxTemperature;
-  int get minTemperature => _minTemperature;
+@JsonSerializable()
+class YumemiWeatherApiResponse {
+  YumemiWeatherApiResponse({
+    required this.weatherCondition,
+    required this.maxTemperature,
+    required this.minTemperature,
+  });
+
+  factory YumemiWeatherApiResponse.fromJson(Map<String, dynamic> json) =>
+      _$YumemiWeatherApiResponseFromJson(json);
+
+  final String weatherCondition;
+  final int maxTemperature;
+  final int minTemperature;
+
+  Map<String, dynamic> toJson() => _$YumemiWeatherApiResponseToJson(this);
 }
