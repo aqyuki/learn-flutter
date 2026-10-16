@@ -47,7 +47,7 @@ class YumemiWeatherApiClient({required final YumemiWeather _client})
             reason: WeatherRepositoryExceptionReason.unknown,
           );
       }
-    } on FormatException catch (_) {
+    } on CheckedFromJsonException catch (_) {
       throw WeatherRepositoryException(
         reason: WeatherRepositoryExceptionReason.apiError,
       );
@@ -65,10 +65,7 @@ class YumemiWeatherApiRequest {
   factory YumemiWeatherApiRequest.fromJson(Map<String, dynamic> json) =>
       _$YumemiWeatherApiRequestFromJson(json);
 
-  @JsonKey(name: 'area')
   final String area;
-
-  @JsonKey(name: 'date')
   final DateTime date;
 
   Map<String, dynamic> toJson() => _$YumemiWeatherApiRequestToJson(this);
@@ -85,13 +82,8 @@ class YumemiWeatherApiResponse {
   factory YumemiWeatherApiResponse.fromJson(Map<String, dynamic> json) =>
       _$YumemiWeatherApiResponseFromJson(json);
 
-  @JsonKey(name: 'weather_condition')
   final String weatherCondition;
-
-  @JsonKey(name: 'max_temperature')
   final int maxTemperature;
-
-  @JsonKey(name: 'min_temperature')
   final int minTemperature;
 
   Map<String, dynamic> toJson() => _$YumemiWeatherApiResponseToJson(this);
