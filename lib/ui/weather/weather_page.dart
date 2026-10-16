@@ -11,57 +11,40 @@ import 'package:flutter_training/ui/weather/component/weather_icon.dart';
 
 const _viewWidthFactor = 0.5;
 
-class WeatherPage extends ConsumerStatefulWidget {
+class WeatherPage extends ConsumerWidget {
   const WeatherPage({super.key});
-
-  @override
-  ConsumerState<WeatherPage> createState() => _WeatherPageState();
-}
-
-class _WeatherPageState extends ConsumerState<WeatherPage> {
-  var _isLoading = false;
 
   void _onClose(BuildContext context) {
     Navigator.pop(context);
   }
 
-  Future<void> _onReload() async {
-    if (_isLoading) {
-      return;
-    }
-
-    try {
-      setState(() => _isLoading = true);
-
-      await ref.read(weatherControllerProvider.notifier).reload();
-    } on WeatherRepositoryException catch (e) {
-      if (!mounted) {
-        return;
-      }
-
-      final message = switch (e.reason) {
-        .invalidParameter => 'リクエストが不正です。',
-        .unknown => '天気情報の取得に失敗しました。',
-        .apiError => '天気情報の取得に失敗しました。',
-      };
-
-      unawaited(
-        ActionErrorDialog.show(
-          context: context,
-          title: 'エラー',
-          message: message,
-        ),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+  Future<void> _onReload(WidgetRef ref) async {
+    final weather = ref.read(weatherControllerProvider.notifier);
+    await weather.reload();
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final weather = ref.watch(weatherControllerProvider);
+    ref.listen(weatherControllerProvider, (_, next) {
+      if (next.isLoading) {
+        return;
+      }
+
+      if (next.error case WeatherRepositoryException(:final reason)) {
+        unawaited(
+          ActionErrorDialog.show(
+            context: context,
+            title: 'エラー',
+            message: switch (reason) {
+              .invalidParameter => 'リクエストが不正です。',
+              .unknown => '天気情報の取得に失敗しました。',
+              .apiError => '天気情報の取得に失敗しました。',
+            },
+          ),
+        );
+      }
+    });
 
     return Scaffold(
       body: Stack(
@@ -75,9 +58,9 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                 children: [
                   const Spacer(),
                   WeatherIcon(
-                    condition: weather?.condition,
+                    condition: weather.value?.condition,
                   ),
-                  TemperatureDisplay(weather: weather),
+                  TemperatureDisplay(weather: weather.value),
                   Expanded(
                     child: Column(
                       children: [
@@ -86,7 +69,7 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
                         ),
                         ActionDisplay(
                           onClose: () => _onClose(context),
-                          onReload: _onReload,
+                          onReload: () => _onReload(ref),
                         ),
                       ],
                     ),
@@ -95,10 +78,8 @@ class _WeatherPageState extends ConsumerState<WeatherPage> {
               ),
             ),
           ),
-          if (_isLoading) ...[
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
+          if (weather.isLoading) ...[
+            const Center(child: CircularProgressIndicator()),
           ],
         ],
       ),
