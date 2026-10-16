@@ -25,6 +25,7 @@ void main() {
     testWidgets('初期状態ではプレースホルダーが表示されること', (tester) async {
       _setDevicePixelRatioAndPhysicalSize(tester);
 
+      // Given
       final repo = MockWeatherRepository();
 
       await tester.pumpWidget(
@@ -34,6 +35,8 @@ void main() {
         ),
       );
 
+      // Then
+      expect(find.byType(AlertDialog), findsNothing);
       expect(find.byType(Placeholder), findsOne);
       expect(find.text('** ℃'), findsExactly(2));
     });
@@ -67,10 +70,6 @@ void main() {
         return loader is SvgAssetLoader &&
             loader.assetName == 'assets/weather_icons/sunny.svg';
       });
-
-      // 初期状態では画像、最低気温、最高気温は表示されていない
-      expect(find.byType(Placeholder), findsOne);
-      expect(find.text('** ℃'), findsExactly(2));
 
       // When
       // Reloadボタンをタップすることでデータの取得が行われ、画面が更新される
@@ -115,10 +114,6 @@ void main() {
             loader.assetName == 'assets/weather_icons/cloudy.svg';
       });
 
-      // 初期状態では画像、最低気温、最高気温は表示されていない
-      expect(find.byType(Placeholder), findsOne);
-      expect(find.text('** ℃'), findsExactly(2));
-
       // When
       // Reloadボタンをタップすることでデータの取得が行われ、画面が更新される
       await tester.tap(find.text('Reload'));
@@ -162,10 +157,6 @@ void main() {
             loader.assetName == 'assets/weather_icons/rainy.svg';
       });
 
-      // 初期状態では画像、最低気温、最高気温は表示されていない
-      expect(find.byType(Placeholder), findsOne);
-      expect(find.text('** ℃'), findsExactly(2));
-
       // When
       // Reloadボタンをタップすることでデータの取得が行われ、画面が更新される
       await tester.tap(find.text('Reload'));
@@ -182,7 +173,7 @@ void main() {
     testWidgets('エラー発生時にダイアログを表示する', (tester) async {
       _setDevicePixelRatioAndPhysicalSize(tester);
 
-      // Give
+      // Given
       final repo = MockWeatherRepository();
       when(repo.fetchWeather()).thenThrow(
         WeatherRepositoryException(reason: .unknown),
@@ -197,13 +188,11 @@ void main() {
         ),
       );
 
-      expect(find.byType(AlertDialog), findsNothing);
-
-      // When: Reloadを押し、ダイアログのアニメーションを進める。
+      // When
       await tester.tap(find.text('Reload'));
       await tester.pumpAndSettle();
 
-      // Then: ダイアログ内に適切なメッセージが表示される。
+      // Then
       final dialog = find.byType(AlertDialog);
       expect(dialog, findsOne);
       expect(
@@ -214,7 +203,14 @@ void main() {
         findsOne,
       );
 
-      // ダイアログを閉じる
+      // NOTE:
+      // 本来であればダイアログを閉じるテストは別のテストとして切り出すべきだが、
+      // 切り出した場合、重複箇所が多くなってしまうため同じテストの中で実施している
+
+      // test: OKをタップしたらダイアログが閉じること
+      // Given: ダイアログが表示されている状態（前段のテストでこの状態になっている）
+
+      // When
       await tester.tap(
         find.descendant(
           of: dialog,
@@ -223,6 +219,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      // Then
       expect(find.byType(AlertDialog), findsNothing);
     });
   });
